@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PB3 und das Gemüse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: warm, encouraging classroom tutor for Grade 6 — one word, full attention.
+   IDEA: a market-garden produce tag: each word is a big labelled tag clipped to a coloured field.
+   PICTURE: the word's own picture from the PB3 infographic, large, on a white photo mat.
+   COLOUR and TYPE: each category owns a full-bleed field + one accent; Lexend for reading clarity; der/die/das colour code.
+   LAYOUT: brand bar + segmented progress, then tag (picture | word), then three big controls. */
+:root{color-scheme:light dark;--paper:light-dark(#fffaf2,#1c1a21);--ink:light-dark(#1d1a17,#f3eee6);--soft:light-dark(#6c6359,#b9b0a5);--line:light-dark(#eadfce,#34303b);
+--der:#1f5fbf;--die:#d2363a;--das:#1d8a4a;--ok:#1d8a4a;--bad:#d2363a;--field:#2b7f9e;--fink:#fff;--acc:#ffd23f}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--der:#7fb0ff;--die:#ff8a8c;--das:#6fd69a}}
+:root[data-theme=dark]{--der:#7fb0ff;--die:#ff8a8c;--das:#6fd69a}
+body[data-cat=weather]{--field:#2b7f9e;--fink:#fff;--acc:#ffd23f}
+body[data-cat=space]{--field:#271d55;--fink:#fff;--acc:#b6e84a}
+body[data-cat=fruit]{--field:#2f6e3b;--fink:#fff;--acc:#ff7a52}
+body[data-cat=colors]{--field:#ef9f2c;--fink:#2a1906;--acc:#5d2a92}
+body[data-cat=actions]{--field:#b02f67;--fink:#fff;--acc:#ffd3e3}
+body[data-cat=review]{--field:#1f3b4d;--fink:#fff;--acc:#ffd23f}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;font:16px/1.5 Lexend,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:var(--field);overflow-x:clip;transition:background-color .6s}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.13;background-image:radial-gradient(var(--acc) 2px,transparent 2.5px);background-size:34px 34px}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:3px}
+.wrap{position:relative;max-width:1180px;margin:0 auto;padding:14px max(4vw,14px) 28px}
+header.bar{display:flex;align-items:center;gap:14px;color:var(--fink);flex-wrap:wrap}
+.logo{width:58px;height:58px;border-radius:50%;background:#fff;padding:3px;box-shadow:0 4px 14px #0003;flex:none}
+.logo img{width:100%;height:100%;display:block}
+.ttl{flex:1 1 220px}
+.ttl b{display:block;font-size:20px;font-weight:800;line-height:1.1}
+.ttl span{font-size:14px;opacity:.85}
+.count{font-weight:600;font-size:15px;background:color-mix(in srgb,var(--fink) 14%,transparent);padding:8px 14px;border-radius:99px;white-space:nowrap}
+.segs{display:flex;gap:6px;margin:14px 0 18px}
+.seg{flex:var(--n) 1 0;height:30px;border-radius:9px;background:color-mix(in srgb,var(--fink) 18%,transparent);position:relative;overflow:hidden;color:var(--fink);font-size:12px;font-weight:600;display:flex;align-items:center;padding:0 9px;white-space:nowrap}
+.seg i{position:absolute;left:0;bottom:0;height:5px;width:0;background:var(--acc);transition:width .5s}
+.seg span{position:relative;overflow:hidden;text-overflow:ellipsis}
+.seg.on{outline:2px solid var(--acc)}
+/* tag card */
+.tag{background:var(--paper);border-radius:28px;box-shadow:0 22px 50px #0004;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(18px,3vw,40px);padding:clamp(16px,2.6vw,32px);position:relative}
+.tag::before{content:"";position:absolute;top:-11px;left:50%;width:70px;height:22px;margin-left:-35px;border-radius:12px;background:var(--acc);box-shadow:0 3px 8px #0003}
+.mat{background:#fff;border-radius:20px;border:1px solid var(--line);position:relative;display:grid;place-items:center;aspect-ratio:4/3;overflow:hidden}
+.mat img{width:92%;height:88%;object-fit:contain;display:block}
+.cattag{position:absolute;left:12px;top:12px;background:var(--field);color:var(--fink);font-size:13px;font-weight:600;padding:5px 12px;border-radius:99px}
+.num{position:absolute;right:12px;top:12px;background:#1d1a17;color:#fff;font-size:13px;font-weight:600;padding:5px 11px;border-radius:99px}
+.txt{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.gender{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--soft)}
+.gender em{font-style:normal;font-weight:600;padding:3px 10px;border-radius:99px;border:1.5px solid currentColor}
+.de{font-weight:800;line-height:1.02;font-size:clamp(40px,6.4vw,84px);letter-spacing:-.01em;white-space:nowrap;border-radius:14px;padding:2px 6px;margin-left:-6px;transition:background .3s}
+.de .art{margin-right:.22em}
+.de .lt{display:inline-block}
+.a-der{color:var(--der)}.a-die{color:var(--die)}.a-das{color:var(--das)}
+.syl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:20px;color:var(--soft)}
+.syl b{color:var(--ink);text-decoration:underline 3px var(--acc);text-underline-offset:5px}
+.pl{font-size:12px;font-weight:600;color:var(--die);border:1.5px solid;border-radius:99px;padding:1px 8px}
+.en{font-size:clamp(22px,2.6vw,30px);font-weight:500;border-radius:12px;padding:2px 6px;margin-left:-6px;transition:background .3s}
+.en small{display:block;font-size:13px;color:var(--soft);font-weight:400}
+.ex{border-top:2px dashed var(--line);padding-top:14px;display:grid;gap:4px}
+.ex .l{font-size:13px;color:var(--soft)}
+.ex .g{font-size:21px;font-weight:600;border-radius:10px;padding:2px 6px;margin-left:-6px;transition:background .3s}
+.ex .g mark{background:none;color:inherit;text-decoration:underline 3px var(--acc);text-underline-offset:4px}
+.ex .e{font-size:17px;color:var(--soft);border-radius:10px;padding:2px 6px;margin-left:-6px;transition:background .3s}
+.live{background:color-mix(in srgb,var(--acc) 40%,transparent)}
+.mini{width:44px;height:44px;border-radius:50%;background:color-mix(in srgb,var(--field) 14%,var(--paper));display:inline-grid;place-items:center;flex:none}
+.mini svg{width:22px;height:22px;fill:var(--ink)}
+.ctrl{display:grid;grid-template-columns:auto auto auto minmax(0,1fr);gap:12px;margin-top:20px;align-items:center}
+.btn{min-height:56px;border-radius:16px;padding:0 20px;font-weight:600;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--paper);box-shadow:0 6px 0 #0002;transition:transform .12s}
+.btn:active{transform:translateY(3px);box-shadow:0 3px 0 #0002}
+.btn svg{width:22px;height:22px;fill:currentColor}
+.btn.next{background:var(--acc);color:#1d1a17;font-size:19px;font-weight:800;justify-self:end;padding:0 30px;min-width:220px}
+body[data-cat=colors] .btn.next{color:#fff}
+.btn.ghost{background:transparent;box-shadow:none;color:var(--fink);border:2px solid color-mix(in srgb,var(--fink) 45%,transparent)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn.home{min-height:44px;padding:0 16px;font-size:15px;background:var(--paper);color:var(--ink);box-shadow:0 4px 0 #0002}
+.media{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.story{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:16px;text-align:left;background:#1f3b4d;color:#fff;border-radius:22px;padding:12px 18px 12px 12px;box-shadow:0 8px 0 #0002;transition:transform .15s}
+.story:hover{transform:translateY(-2px)}
+.story.gram{background:#1f4d3a}.story.gram .stxt small{color:#9fe8c0}.story.gram .play svg{background:#2fae6c}.story.gram .sgo{background:#9fe8c0}
+.sthumb{position:relative;width:170px;aspect-ratio:16/9;border-radius:14px;overflow:hidden;display:block}
+.sthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.play{position:absolute;inset:0;display:grid;place-items:center;background:#0003}
+.play svg{width:46px;height:46px;fill:#fff;background:#ff7a52;border-radius:50%;padding:10px;box-shadow:0 4px 14px #0005}
+.stxt{display:grid;gap:2px}.stxt small{color:#ffd23f;font-weight:600}.stxt b{font-size:clamp(20px,2.4vw,26px);line-height:1.15}.stxt span{opacity:.85;font-size:15px}
+.sgo{background:#ffd23f;color:#1d1a17;font-weight:800;border-radius:14px;min-height:46px;padding:0 18px;margin-top:8px;justify-self:start;opacity:1!important;font-size:15px!important;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.sgo svg{width:20px;height:20px;fill:currentColor}
+.vbox{position:relative;width:min(1100px,100%);background:#000;border-radius:20px;overflow:hidden;box-shadow:0 30px 70px #0007;animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+.vbox video{display:block;width:100%;max-height:80vh;background:#000}
+.vbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 18px;background:#1f3b4d;color:#fff;font-weight:600}
+.vbar button{min-height:44px;border-radius:12px;padding:0 16px;background:#ffd23f;color:#1d1a17;font-weight:800}
+@media(max-width:1000px){.story{grid-template-columns:minmax(0,1fr)}.sthumb{width:100%}}
+@media(max-width:700px){.media{grid-template-columns:minmax(0,1fr)}.story{padding:12px}.sgo{justify-self:stretch;justify-content:center}}
+.note{color:var(--fink);font-size:13px;opacity:.85;margin-top:14px}
+.hide{display:none!important}
+/* start screen */
+.hero{background:var(--paper);border-radius:28px;padding:clamp(20px,4vw,48px);box-shadow:0 22px 50px #0004;display:grid;gap:26px}
+.hero h1{font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0;text-wrap:balance}
+.hero p{margin:6px 0 0;color:var(--soft);font-size:17px;max-width:62ch}
+.hero .lg{width:112px;height:112px}
+.route{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;counter-reset:r}
+.stop{border-radius:18px;padding:12px;color:var(--fink);background:var(--c);display:grid;gap:8px;text-align:left}
+.stop b{font-size:15px;line-height:1.2}
+.stop small{opacity:.85}
+.stop .th{display:flex;gap:4px}
+.stop.rv{box-shadow:inset 0 0 0 3px #ffd23f}.stop.rv .th{flex-wrap:wrap}.stop .th em{font-style:normal;font-size:12px;font-weight:600;background:#ffd23f;color:#1d1a17;border-radius:99px;padding:2px 8px}
+.stop .th img{width:34px;height:34px;object-fit:cover;border-radius:8px;background:#fff}
+.go{display:flex;gap:12px;flex-wrap:wrap}
+/* overlay */
+.ov{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:color-mix(in srgb,var(--field) 70%,#000a);padding:16px}
+.ov canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.medal{position:relative;background:var(--paper);border-radius:28px;padding:30px clamp(18px,4vw,40px);text-align:center;max-width:560px;width:100%;box-shadow:0 30px 70px #0006;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+.medal h2{font-size:clamp(30px,5vw,44px);margin:6px 0 4px;line-height:1.05}
+.medal p{margin:0 0 18px;color:var(--soft)}
+.stars{display:flex;justify-content:center;gap:8px}
+.stars svg{width:54px;height:54px;fill:var(--acc);stroke:#0003;stroke-width:1;animation:pop .6s backwards}
+.ring{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 20px}
+.ring img{width:46px;height:46px;object-fit:cover;border-radius:12px;background:#fff;border:1px solid var(--line);animation:pop .5s backwards}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+@keyframes rise{from{transform:translateY(.5em) rotate(-6deg);opacity:0}}
+@keyframes inpic{from{transform:scale(.85) rotate(-3deg);opacity:0}}
+@keyframes fade{from{transform:translateY(12px);opacity:0}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.anim .mat img{animation:inpic .55s cubic-bezier(.2,1.4,.4,1)}
+.anim .de .lt{animation:rise .45s backwards cubic-bezier(.2,1.4,.4,1)}
+.anim .en,.anim .ex,.anim .syl{animation:fade .5s backwards}
+.anim .syl{animation-delay:.25s}.anim .en{animation-delay:.35s}.anim .ex{animation-delay:.5s}
+/* review */
+.q{background:var(--paper);border-radius:28px;padding:clamp(16px,3vw,32px);box-shadow:0 22px 50px #0004;display:grid;gap:18px}
+.qh{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.qh h2{margin:0;font-size:clamp(22px,3vw,30px)}
+.qh span{color:var(--soft);font-weight:600}
+.qbar{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:-6px}.qbar i{display:block;height:100%;background:var(--field);border-radius:99px;transition:width .4s}
+.qmeta{font-size:13px;color:var(--soft);margin-top:-12px}
+.qpic{max-width:420px;width:100%;margin:0 auto}
+.qword{text-align:center;font-weight:800;font-size:clamp(38px,6vw,72px);line-height:1.05;margin:10px 0}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.opt{min-height:64px;border-radius:16px;background:color-mix(in srgb,var(--field) 9%,var(--paper));border:2px solid var(--line);font-size:20px;font-weight:600;padding:10px 14px}
+.opt:hover{border-color:var(--field)}
+.opt.ok{background:color-mix(in srgb,var(--ok) 22%,var(--paper));border-color:var(--ok)}
+.opt.no{background:color-mix(in srgb,var(--bad) 18%,var(--paper));border-color:var(--bad);animation:shake .3s}
+.fb{min-height:28px;font-weight:600;text-align:center;font-size:18px}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--bad)}
+.match{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:16px}
+.col{display:grid;gap:10px}
+.mw{min-height:76px;border-radius:16px;border:2px solid var(--line);background:color-mix(in srgb,var(--field) 9%,var(--paper));font-size:clamp(17px,2.2vw,22px);font-weight:600;padding:8px 12px}
+.mp{border-radius:16px;border:2px solid var(--line);background:#fff;min-height:76px;display:grid;place-items:center;padding:4px}
+.mp img{height:68px;max-width:100%;object-fit:contain}
+.mw.sel,.mp.sel{border-color:var(--field);box-shadow:0 0 0 3px var(--acc)}
+.mw.done,.mp.done{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--paper));pointer-events:none}
+.mp.done{opacity:.6}
+.mw.no,.mp.no{animation:shake .3s;border-color:var(--bad)}
+.score{font-size:clamp(56px,10vw,96px);font-weight:800;line-height:1;margin:8px 0}
+.miss{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 18px}
+.miss div{display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--field) 10%,var(--paper));border-radius:12px;padding:4px 10px 4px 4px;font-size:14px;font-weight:600}
+.miss img{width:34px;height:34px;object-fit:cover;border-radius:8px;background:#fff}
+.voice{background:#fff3cd;color:#5a4300;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:14px}
+@media(max-width:1000px){.route{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:560px){.route{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+ .tag{grid-template-columns:minmax(0,1fr)}
+ .ctrl{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .btn.next{grid-column:1/-1;grid-row:1;justify-self:stretch}
+ .btn{padding:0 10px;font-size:14px;gap:6px}
+ .seg span{display:none}.seg{height:14px}.seg i{height:100%}
+ .count{font-size:13px}
+}
+@media(max-width:520px){.opts{grid-template-columns:minmax(0,1fr)}.ttl span{display:none}.logo{width:48px;height:48px}.mp img{height:54px}.mw,.mp{min-height:64px}}
+@media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-cat="weather">
+<div class="wrap">
+  <header class="bar">
+    <div class="logo"><img src="logo.png" alt="International Education Egypt"></div>
+    <div class="ttl"><b>PB3 und das Gemüse</b><span>Wortschatz · German vocabulary, one word at a time</span></div>
+    <div class="count" id="count">73 Wörter</div>
+    <button class="btn home hide" id="btnHome" aria-label="Go to the home page"><svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>Home</button>
+  </header>
+  <div class="segs" id="segs"></div>
+  <div id="voiceWarn" class="voice hide">No German voice was found on this device, so the audio may sound English. On Windows, add “German” in Settings → Time &amp; language → Speech; on iPad/Android, install a German text‑to‑speech voice. Chrome and Edge usually include one.</div>
+
+  <!-- START -->
+  <section id="start" class="hero">
+    <div class="media">
+      <button class="story" data-video="story" aria-label="Watch the story video: PB3 und das Gemüse">
+        <span class="sthumb"><img src="story-poster.jpg" alt=""><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+        <span class="stxt"><small>Geschichte · Story video · 1:36</small><b>Watch the story first</b><span>See PB3, Petra and Tim, then learn the words from the story.</span><span class="sgo">Video ansehen <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+      </button>
+      <button class="story gram" data-video="grammar" aria-label="Watch the grammar study video">
+        <span class="sthumb"><img src="grammar-poster.jpg" alt=""><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+        <span class="stxt"><small>Grammatik · Grammar study · 4:26</small><b>Grammar study</b><span>Modal verbs können, müssen, wollen, the sentence bracket, and mein/dein in Nominativ and Akkusativ.</span><span class="sgo">Grammatik lernen <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+      </button>
+    </div>
+    <div>
+      <h1>Wortschatz lernen · Learn the words</h1>
+      <p>Learn all 73 words from the picture vocabulary sheet. You will see, hear and say one word at a time, then test yourself in a review game.</p>
+    </div>
+    <div class="route" id="route"></div>
+    <div class="go">
+      <button class="btn next" id="btnStart" style="justify-self:start">Los geht’s! Start</button>
+      <button class="btn hide" id="btnResume">Weiter machen · continue at word <span id="resN"></span></button>
+    </div>
+  </section>
+
+  <!-- LESSON -->
+  <section id="lesson" class="hide">
+    <article class="tag" id="card">
+      <div class="mat"><span class="cattag" id="cCat"></span><span class="num" id="cNum"></span><img id="cImg" alt=""></div>
+      <div class="txt">
+        <div class="gender" id="cGender"></div>
+        <div class="de" id="cDe"></div>
+        <div class="syl" id="cSyl"></div>
+        <div class="en" id="cEn"></div>
+        <div class="ex">
+          <span class="l">Beispiel · example</span>
+          <div style="display:flex;gap:10px;align-items:center"><div class="g" id="cExDe"></div><button class="mini" id="btnSent" aria-label="Hear the example sentence"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button></div>
+          <div class="e" id="cExEn"></div>
+        </div>
+      </div>
+    </article>
+    <div class="ctrl">
+      <button class="btn ghost" id="btnBack" aria-label="Previous word"><svg viewBox="0 0 24 24"><path d="M15.4 7.4 14 6l-6 6 6 6 1.4-1.4L10.8 12z"/></svg>Back</button>
+      <button class="btn" id="btnRepeat"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>Repeat</button>
+      <button class="btn" id="btnAgain"><svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>Show me again</button>
+      <button class="btn next" id="btnNext">Next word <svg viewBox="0 0 24 24"><path d="M8.6 16.6 10 18l6-6-6-6-1.4 1.4 4.6 4.6z"/></svg></button>
+    </div>
+    <p class="note">Listen, then say the word out loud before you press Next. Tap the picture to hear the word again.</p>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="review" class="hide"></section>
+</div>
+
+<div class="ov hide" id="vov" role="dialog" aria-modal="true" aria-label="Story video"><div class="vbox"><div class="vbar"><span id="vTitle">PB3 und das Gemüse · Geschichte</span><button id="vClose">Schließen · Close</button></div><video id="vid" controls playsinline preload="none"></video></div></div>
+<div class="ov hide" id="ov"><canvas id="cv"></canvas><div class="medal" id="medal"></div></div>
+
+<script>
+{
+const CATS=[
+ {id:'weather',de:'Wetter & Orte',en:'Weather & Places',c:'#2b7f9e'},
+ {id:'space',de:'Weltraum & Geschichte',en:'Space & Story',c:'#271d55'},
+ {id:'fruit',de:'Obst & Gemüse',en:'Fruit & Vegetables',c:'#2f6e3b'},
+ {id:'colors',de:'Farben & Beschreibungen',en:'Colors & Descriptions',c:'#c67812'},
+ {id:'actions',de:'Aktionen & nützliche Wörter',en:'Actions & Useful Words',c:'#b02f67'}];
+// id|cat|German|English|syllables (* = stressed)|example (German, *target*)|example (English)|group|plural
+const RAW=`zimmer|weather|das Zimmer|room|*Zim·mer|Mein *Zimmer* ist klein.|My room is small.|room
+haus|weather|das Haus|house|*Haus|Das *Haus* ist groß.|The house is big.
+fenster|weather|das Fenster|window|*Fens·ter|Bitte öffne das *Fenster*.|Please open the window.|win
+garten|weather|der Garten|garden|*Gar·ten|Im *Garten* wächst Gemüse.|Vegetables grow in the garden.
+wind|weather|der Wind|wind|*Wind|Der *Wind* ist heute stark.|The wind is strong today.|wind
+windig|weather|windig|windy|*win·dig|Heute ist es *windig*.|It is windy today.|wind
+regnet|weather|es regnet|it is raining|es *reg·net|*Es regnet*, ich nehme einen Schirm.|It is raining, I am taking an umbrella.
+sonne|weather|die Sonne|sun|*Son·ne|Die *Sonne* scheint.|The sun is shining.|yel
+regenbogen|weather|der Regenbogen|rainbow|*Re·gen·bo·gen|Der *Regenbogen* ist bunt.|The rainbow is colourful.
+dorf|weather|das Dorf|village|*Dorf|Mein Opa wohnt in einem *Dorf*.|My grandpa lives in a village.
+strasse|weather|die Straße|street|*Stra·ße|Die *Straße* ist lang.|The street is long.
+schule|weather|die Schule|school|*Schu·le|Ich gehe in die *Schule*.|I go to school.
+treppe|weather|die Treppe|stairs|*Trep·pe|Ich gehe die *Treppe* hoch.|I go up the stairs.
+bett|weather|das Bett|bed|*Bett|Das *Bett* ist bequem.|The bed is comfortable.|room
+kueche|weather|die Küche|kitchen|*Kü·che|Mama kocht in der *Küche*.|Mum cooks in the kitchen.
+raumschiff|space|das Raumschiff|spaceship|*Raum·schiff|Das *Raumschiff* fliegt zum Mond.|The spaceship flies to the moon.
+ausserirdische|space|der Außerirdische|alien|*Au·ßer·ir·di·sche|Der *Außerirdische* ist grün.|The alien is green.
+roboter|space|der Roboter|robot|*Ro·bo·ter|Der *Roboter* kann sprechen.|The robot can speak.
+planet|space|der Planet|planet|Pla·*net|Die Erde ist ein *Planet*.|The Earth is a planet.
+kiste|space|die Kiste|box/crate|*Kis·te|Die *Kiste* ist voll Gemüse.|The box is full of vegetables.
+lastwagen|space|der Lastwagen|truck|*Last·wa·gen|Der *Lastwagen* ist gelb.|The truck is yellow.
+fahrrad|space|das Fahrrad|bicycle|*Fahr·rad|Ich fahre mit dem *Fahrrad*.|I ride my bicycle.
+spielzeug|space|das Spielzeug|toy|*Spiel·zeug|Das *Spielzeug* ist neu.|The toy is new.
+freund|space|der Freund|friend|*Freund|Tom ist mein *Freund*.|Tom is my friend.|boys
+apfel|fruit|der Apfel|apple|*Ap·fel|Der *Apfel* ist rot.|The apple is red.|red
+birne|fruit|die Birne|pear|*Bir·ne|Die *Birne* ist süß.|The pear is sweet.
+trauben|fruit|die Trauben|grapes|*Trau·ben|Ich esse gern *Trauben*.|I like eating grapes.|vio|1
+banane|fruit|die Banane|banana|Ba·*na·ne|Die *Banane* ist gelb.|The banana is yellow.|yel
+orange_f|fruit|die Orange|orange|O·*ran·ge|Die *Orange* ist saftig.|The orange is juicy.|org
+zitrone|fruit|die Zitrone|lemon|Zi·*tro·ne|Die *Zitrone* ist sauer.|The lemon is sour.|yel
+karotte|fruit|die Karotte|carrot|Ka·*rot·te|Der Hase isst eine *Karotte*.|The rabbit eats a carrot.|veg
+kartoffel|fruit|die Kartoffel|potato|Kar·*tof·fel|Die *Kartoffel* ist braun.|The potato is brown.
+zwiebel|fruit|die Zwiebel|onion|*Zwie·bel|Ich schneide eine *Zwiebel*.|I cut an onion.
+bohnen|fruit|die Bohnen|beans|*Boh·nen|Die *Bohnen* sind grün.|The beans are green.|grn|1
+erbsen|fruit|die Erbsen|peas|*Erb·sen|Ich mag keine *Erbsen*.|I don't like peas.|grn|1
+tomate|fruit|die Tomate|tomato|To·*ma·te|Die *Tomate* ist rund und rot.|The tomato is round and red.|red
+wassermelone|fruit|die Wassermelone|watermelon|*Was·ser·me·lo·ne|Die *Wassermelone* ist groß.|The watermelon is big.
+gemuese|fruit|das Gemüse|vegetables|Ge·*mü·se|*Gemüse* ist gesund.|Vegetables are healthy.|veg
+obst|fruit|das Obst|fruit|*Obst|Ich esse jeden Tag *Obst*.|I eat fruit every day.|fru
+rot|colors|rot|red|*rot|Mein Ball ist *rot*.|My ball is red.|red
+schwarz|colors|schwarz|black|*schwarz|Die Katze ist *schwarz*.|The cat is black.
+grau|colors|grau|grey|*grau|Der Roboter ist *grau*.|The robot is grey.
+gruen|colors|grün|green|*grün|Das Gras ist *grün*.|The grass is green.|grn
+weiss|colors|weiß|white|*weiß|Der Schnee ist *weiß*.|The snow is white.
+gelb|colors|gelb|yellow|*gelb|Die Sonne ist *gelb*.|The sun is yellow.|yel
+orange_c|colors|orange|orange|o·*ran·ge|Die Karotte ist *orange*.|The carrot is orange.|org
+violett|colors|violett|violet|vi·o·*lett|Die Trauben sind *violett*.|The grapes are violet.|vio
+rund|colors|rund|round|*rund|Der Ball ist *rund*.|The ball is round.
+boese|colors|böse|angry/mean|*bö·se|Der Junge ist *böse*.|The boy is angry.
+muede|colors|müde|tired|*mü·de|Ich bin *müde*.|I am tired.
+interessant|colors|interessant|interesting|in·te·res·*sant|Das Buch ist *interessant*.|The book is interesting.
+juenger|colors|jünger|younger|*jün·ger|Mein Bruder ist *jünger* als ich.|My brother is younger than me.|boys
+kaufen|actions|kaufen|to buy|*kau·fen|Wir *kaufen* Obst im Supermarkt.|We buy fruit at the supermarket.
+bezahlen|actions|bezahlen|to pay|be·*zah·len|Ich *bezahle* an der Kasse.|I pay at the checkout.
+essen|actions|essen|to eat|*es·sen|Ich *esse* einen Apfel.|I eat an apple.|eat
+schmecken|actions|schmecken|to taste|*schme·cken|Die Suppe *schmeckt* gut.|The soup tastes good.|eat
+fotografieren|actions|fotografieren|to photograph|fo·to·gra·*fie·ren|Ich *fotografiere* den Garten.|I photograph the garden.
+moegen|actions|mögen|to like|*mö·gen|Ich *mag* Bananen.|I like bananas.
+lieblingsgemuese|actions|das Lieblingsgemüse|favorite vegetable|*Lieb·lings·ge·mü·se|Mein *Lieblingsgemüse* ist die Karotte.|My favorite vegetable is the carrot.|veg
+lieblingsobst|actions|das Lieblingsobst|favorite fruit|*Lieb·lings·obst|Mein *Lieblingsobst* sind Erdbeeren.|My favorite fruit is strawberries.|fru
+hausaufgaben|actions|die Hausaufgaben|homework|*Haus·auf·ga·ben|Ich mache meine *Hausaufgaben*.|I do my homework.|hw|1
+machen|actions|machen|to do/make|*ma·chen|Was *machst* du?|What are you doing?|hw
+sehen|actions|sehen|to see|*se·hen|Ich *sehe* einen Regenbogen.|I see a rainbow.
+helfen|actions|helfen|to help|*hel·fen|Ich *helfe* meinem Freund.|I help my friend.
+oeffnen|actions|öffnen|to open|*öff·nen|Ich *öffne* die Tür.|I open the door.|door
+schliessen|actions|schließen|to close|*schlie·ßen|Bitte *schließ* das Fenster.|Please close the window.|door
+kommen|actions|kommen|to come|*kom·men|Ich *komme* nach Hause.|I come home.|walk
+gehen|actions|gehen|to go|*ge·hen|Wir *gehen* in den Garten.|We go into the garden.|walk
+bringen|actions|bringen|to bring|*brin·gen|Ich *bringe* dir die Kiste.|I bring you the box.
+hals|actions|der Hals|neck|*Hals|Mein *Hals* tut weh.|My neck hurts.|body
+arm|actions|der Arm|arm|*Arm|Mein *Arm* ist stark.|My arm is strong.|body
+hand|actions|die Hand|hand|*Hand|Gib mir deine *Hand*.|Give me your hand.|body
+schleim|actions|der Schleim|slime|*Schleim|Der *Schleim* ist grün und klebrig.|The slime is green and sticky.|grn`;
+const W=RAW.split('\n').map((l,i)=>{const[id,cat,de,en,syl,ex,exEn,grp,pl]=l.split('|');const m=de.match(/^(der|die|das) (.+)$/);
+ return{i,id,cat,de,en,syl,ex,exEn,grp:grp||id,pl:pl==='1',art:m?m[1]:'',noun:m?m[2]:de}});
+const N=W.length,$=s=>document.getElementById(s),img=w=>`img/${w.id}.jpg`;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let cur=0;
+
+/* ---------- speech ---------- */
+const S=window.speechSynthesis;let deV=null,enV=null,token=0;
+function pickVoices(){if(!S)return;const vs=S.getVoices();if(!vs.length)return;
+ const de=vs.filter(v=>/^de/i.test(v.lang)),en=vs.filter(v=>/^en/i.test(v.lang));
+ deV=de.find(v=>/de[-_]DE/i.test(v.lang)&&/google|natural|online|anna|katja|helena|petra/i.test(v.name))||de.find(v=>/de[-_]DE/i.test(v.lang))||de[0]||null;
+ enV=en.find(v=>/en[-_]GB/i.test(v.lang))||en[0]||null;
+ $('voiceWarn').classList.toggle('hide',!!deV)}
+if(S){pickVoices();S.onvoiceschanged=pickVoices}else{$('voiceWarn').textContent='This browser cannot speak text aloud. Please open the lesson in Chrome, Edge or Safari to hear the words.';$('voiceWarn').classList.remove('hide')}
+function say(text,lang,rate){return new Promise(res=>{if(!S)return res();const u=new SpeechSynthesisUtterance(text);
+ u.lang=lang==='de'?'de-DE':'en-GB';const v=lang==='de'?deV:enV;if(v)u.voice=v;u.rate=rate;u.pitch=1;
+ let done=false;const fin=()=>{if(!done){done=true;res()}};u.onend=fin;u.onerror=fin;setTimeout(fin,1800+text.length*190/rate);S.speak(u)})}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function stop(){token++;if(S)S.cancel();document.querySelectorAll('.live').forEach(e=>e.classList.remove('live'))}
+async function seq(steps){stop();const t=token;for(const[el,text,lang,rate,pause]of steps){if(t!==token)return;el&&el.classList.add('live');await say(text,lang,rate);el&&el.classList.remove('live');if(t!==token)return;await wait(pause||350)}}
+const clean=s=>s.replace(/\*/g,'');
+function explain(w){seq([[$('cDe'),w.de,'de',.62,500],[$('cDe'),w.de,'de',.75,600],[$('cEn'),w.en.replace('/',' or '),'en',.95,600],[$('cExDe'),clean(w.ex),'de',.78,450],[$('cExEn'),w.exEn,'en',.95,0]])}
+
+/* ---------- build chrome ---------- */
+function segs(active,fillUpTo){$('segs').innerHTML=CATS.map(c=>{const ws=W.filter(w=>w.cat===c.id),done=ws.filter(w=>w.i<fillUpTo).length;
+ return`<div class="seg ${c.id===active?'on':''}" style="--n:${ws.length}"><i style="width:${done/ws.length*100}%"></i><span>${c.en} · ${done}/${ws.length}</span></div>`}).join('')}
+$('route').innerHTML=CATS.map((c,k)=>{const ws=W.filter(w=>w.cat===c.id);return`<button class="stop" style="--c:${c.c}" data-jump="${ws[0].i}"><small>${k+1} · ${ws.length} words</small><b>${c.en}</b><span class="th">${ws.slice(0,4).map(w=>`<img src="${img(w)}" alt="">`).join('')}</span></button>`}).join('')+
+ `<button class="stop rv" style="--c:#1f3b4d" data-review="1"><small>6 · all ${N} words</small><b>Review game</b><span class="th">${['Picture','Meaning','Match'].map(t=>`<em>${t}</em>`).join('')}</span></button>`;
+function show(id){['start','lesson','review'].forEach(s=>$(s).classList.toggle('hide',s!==id));$('btnHome').classList.toggle('hide',id==='start');window.scrollTo({top:0,behavior:'smooth'})}
+
+/* ---------- lesson ---------- */
+function render(anim){const w=W[cur],c=CATS.find(c=>c.id===w.cat);document.body.dataset.cat=w.cat;
+ $('count').textContent=`Wort ${cur+1} von ${N} · Word ${cur+1} of ${N}`;segs(w.cat,cur+1);
+ $('cCat').textContent=c.en;$('cNum').textContent=`${cur+1}/${N}`;$('cImg').src=img(w);$('cImg').alt=w.en;
+ $('cGender').innerHTML=w.art?`<em class="a-der">der</em><em class="a-die">die</em><em class="a-das">das</em><span>· this word: <b class="a-${w.art}">${w.art}</b>${w.pl?' (plural)':''}</span>`:`<span>${/^(to |it )/.test(w.en)?'Verb · action word':'Adjektiv · describing word'}</span>`;
+ const letters=[...w.noun].map((ch,k)=>`<span class="lt" style="animation-delay:${k*35}ms">${ch===' '?'&nbsp;':ch}</span>`).join('');
+ $('cDe').innerHTML=(w.art?`<span class="art a-${w.art}">${w.art}</span>`:'')+`<span class="${w.art?'a-'+w.art:''}">${letters}</span>`;
+ $('cSyl').innerHTML=`<button class="mini" id="btnSlow" aria-label="Hear the word slowly"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button><span>${w.syl.split(' ').map(p=>p.split('·').map(s=>s[0]==='*'?`<b>${s.slice(1)}</b>`:s).join(' · ')).join('&nbsp;&nbsp;')}</span>${w.pl?'<span class="pl">Plural</span>':''}`;
+ $('btnSlow').onclick=()=>seq([[$('cDe'),w.de,'de',.5,0]]);
+ $('cEn').innerHTML=`<small>English meaning</small>${w.en}`;
+ $('cExDe').innerHTML=w.ex.replace(/\*(.+?)\*/g,'<mark>$1</mark>');$('cExEn').textContent=w.exEn;
+ fit();$('btnBack').disabled=cur===0;
+ $('btnNext').firstChild.textContent=cur===N-1?'Finish & review ':'Next word ';
+ if(anim){const k=$('card');k.classList.remove('anim');void k.offsetWidth;k.classList.add('anim')}
+ store.set('pb3_cur',cur)}
+function fit(){const el=$('cDe');el.style.fontSize='';let fs=parseFloat(getComputedStyle(el).fontSize);while(el.scrollWidth>el.clientWidth+2&&fs>24){fs-=2;el.style.fontSize=fs+'px'}}
+addEventListener('resize',()=>{if(!$('lesson').classList.contains('hide'))fit()});
+function go(i){cur=i;show('lesson');render(true);explain(W[cur])}
+$('btnNext').onclick=()=>{stop();const w=W[cur],nx=W[cur+1];if(!nx||nx.cat!==w.cat)celebrate(w.cat);else go(cur+1)};
+$('btnBack').onclick=()=>{if(cur>0)go(cur-1)};
+$('btnRepeat').onclick=()=>seq([[$('cDe'),W[cur].de,'de',.62,0]]);
+$('btnAgain').onclick=()=>{render(true);explain(W[cur])};
+$('btnSent').onclick=()=>seq([[$('cExDe'),clean(W[cur].ex),'de',.75,0]]);
+$('cImg').onclick=()=>seq([[$('cDe'),W[cur].de,'de',.62,0]]);
+$('btnStart').onclick=()=>go(0);
+function refreshResume(){const saved=+store.get('pb3_cur');const has=saved>0&&saved<N;$('btnResume').classList.toggle('hide',!has);if(has){$('resN').textContent=saved+1;$('btnResume').onclick=()=>go(saved)}}
+refreshResume();
+function home(){stop();closeOv();document.body.dataset.cat='weather';segs('',0);$('count').textContent='73 Wörter';refreshResume();show('start')}
+$('btnHome').onclick=home;
+$('route').onclick=e=>{if(e.target.closest('[data-review]'))return startReview();const b=e.target.closest('[data-jump]');if(b)go(+b.dataset.jump)};
+const VIDS={story:{src:'story.mp4',poster:'story-poster.jpg',title:'PB3 und das Gemüse · Geschichte'},grammar:{src:'grammar.mp4',poster:'grammar-poster.jpg',title:'Grammatik · Grammar study'}};
+let lastVidBtn=null;
+function closeVid(){$('vid').pause();$('vov').classList.add('hide');if(lastVidBtn)lastVidBtn.focus()}
+document.querySelectorAll('[data-video]').forEach(b=>b.onclick=()=>{stop();lastVidBtn=b;const v=VIDS[b.dataset.video],el=$('vid');
+ if(!el.src.endsWith(v.src)){el.poster=v.poster;el.src=v.src}$('vTitle').textContent=v.title;$('vov').classList.remove('hide');const p=el.play();if(p&&p.catch)p.catch(()=>{});$('vClose').focus()});
+$('vClose').onclick=closeVid;
+$('vov').onclick=e=>{if(e.target.id==='vov')closeVid()};
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('vov').classList.contains('hide'))closeVid()});
+addEventListener('keydown',e=>{if($('lesson').classList.contains('hide')||!$('ov').classList.contains('hide'))return;if(e.key==='ArrowRight')$('btnNext').click();if(e.key==='ArrowLeft')$('btnBack').click()});
+
+/* ---------- celebration ---------- */
+const STAR='<svg viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>';
+let conf=null;
+function confetti(cols){const cv=$('cv'),x=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const P=Array.from({length:160},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.6,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,r:Math.random()*6.3,s:6+Math.random()*8,c:cols[Math.random()*cols.length|0]}));
+ cancelAnimationFrame(conf);let t=0;(function f(){x.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore()});if(++t<260)conf=requestAnimationFrame(f);else x.clearRect(0,0,cv.width,cv.height)})()}
+function overlay(html,cols){$('medal').innerHTML=html;$('ov').classList.remove('hide');confetti(cols)}
+function closeOv(){$('ov').classList.add('hide');cancelAnimationFrame(conf)}
+function celebrate(cat){const k=CATS.findIndex(c=>c.id===cat),c=CATS[k],nx=CATS[k+1],ws=W.filter(w=>w.cat===cat);
+ overlay(`<div class="stars">${[0,1,2].map(i=>STAR.replace('<svg',`<svg style="animation-delay:${.15+i*.15}s"`)).join('')}</div>
+ <h2>Super gemacht!</h2><p>You learned all ${ws.length} words in <b>${c.en}</b>.</p>
+ <div class="ring">${ws.map((w,i)=>`<img src="${img(w)}" alt="${w.de}" title="${w.de}" style="animation-delay:${.3+i*.05}s">`).join('')}</div>
+ <button class="btn next" id="ovGo" style="width:100%">${nx?`Weiter: ${nx.en}`:'Start the review game'}</button><button class="btn" id="ovHome" style="width:100%;margin-top:12px">Home page</button>`,['#ffd23f','#ff7a52','#b6e84a','#7fb0ff','#ff8fc0']);
+ say('Super gemacht!','de',.85);
+ $('ovHome').onclick=home;$('ovGo').onclick=()=>{closeOv();if(nx)go(W.find(w=>w.cat===nx.id).i);else startReview()}}
+
+/* ---------- review ---------- */
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let R=null;
+function distract(w,n,key){const out=[],seen=new Set([w[key]]),grps=new Set([w.grp]);for(const o of shuf(W)){if(out.length>=n)break;if(seen.has(o[key])||grps.has(o.grp))continue;seen.add(o[key]);grps.add(o.grp);out.push(o)}return out}
+function pickSet(n){const out=[],g=new Set();for(const w of shuf(W)){if(g.has(w.grp))continue;g.add(w.grp);out.push(w);if(out.length===n)break}return out}
+// every word is tested exactly once: 25 picture questions, 24 meaning questions, 6 matching rounds of 4
+function planAll(){for(let t=0;t<200;t++){const all=shuf(W),pool=all.slice(0,24),rounds=[[],[],[],[],[],[]];let ok=true;
+  for(const w of pool){const rd=shuf(rounds).find(x=>x.length<4&&!x.some(o=>o.grp===w.grp));if(!rd){ok=false;break}rd.push(w)}
+  if(ok)return{rounds,p1:all.slice(24,49),p2:all.slice(49)}}
+ const all=shuf(W);return{rounds:[0,1,2,3,4,5].map(i=>all.slice(i*4,i*4+4)),p1:all.slice(24,49),p2:all.slice(49)}}
+function startReview(){stop();document.body.dataset.cat='review';segs('',N);$('count').textContent='Wiederholung · Review';
+ const {p1,p2,rounds}=planAll();
+ R={steps:[...p1.map(w=>({t:'pic',w})),...p2.map(w=>({t:'mean',w})),...rounds.map(ws=>({t:'match',ws}))],k:0,score:0,max:N,miss:new Set()};
+ show('review');intro()}
+function intro(){$('review').innerHTML=`<div class="q" style="text-align:center">
+ <h2 style="font-size:clamp(30px,5vw,46px);margin:0">Wiederholung · Review game</h2>
+ <p style="margin:0;color:var(--soft)">Every one of the ${N} words is tested once, so the review is worth ${N} points. Part 1 (25 words): look at the picture and choose the German word. Part 2 (24 words): read the German word and choose the English meaning. Part 3 (24 words in 6 rounds): match German words with their pictures.</p>
+ <div><button class="btn next" id="rvGo" style="justify-self:center">Start the review</button></div></div>`;$('rvGo').onclick=step}
+function head(part,title){const n=R.k+1,done=R.steps.slice(0,R.k).reduce((a,s)=>a+(s.ws?s.ws.length:1),0);return`<div class="qh"><h2>Teil ${part} · ${title}</h2><span>Question ${n} of ${R.steps.length} · Score ${R.score}/${R.max}</span></div><div class="qbar" aria-label="${done} of ${N} words tested"><i style="width:${done/N*100}%"></i></div><div class="qmeta">${done} of ${N} words tested</div>`}
+function step(){if(R.k>=R.steps.length)return finish();const s=R.steps[R.k];if(s.t==='match')return match(s.ws);
+ const w=s.w,pic=s.t==='pic',opts=shuf([w,...distract(w,3,pic?'de':'en')]);
+ $('review').innerHTML=`<div class="q">${head(pic?1:2,pic?'Which German word is this?':'What does it mean in English?')}
+ ${pic?`<div class="mat qpic"><img src="${img(w)}" alt="picture to name"></div>`:`<div class="qword"><span class="${w.art?'a-'+w.art:''}">${w.de}</span> <button class="mini" id="qSay" aria-label="Hear the word"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button></div>`}
+ <div class="opts">${opts.map(o=>`<button class="opt" data-i="${o.i}">${pic?o.de:o.en}</button>`).join('')}</div><div class="fb" id="fb"></div>
+ <div style="text-align:right"><button class="btn next hide" id="qNext">Next</button></div></div>`;
+ if(!pic){$('qSay').onclick=()=>seq([[null,w.de,'de',.65,0]]);seq([[null,w.de,'de',.65,0]])}
+ let done=false;$('review').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(done)return;done=true;const ok=+b.dataset.i===w.i;
+  b.classList.add(ok?'ok':'no');if(!ok){$('review').querySelector(`.opt[data-i="${w.i}"]`).classList.add('ok');R.miss.add(w.i)}else R.score++;
+  $('fb').className='fb '+(ok?'ok':'no');$('fb').textContent=ok?'Richtig! Correct!':`Leider falsch. The answer is: ${w.de} = ${w.en}`;
+  seq([[null,ok?'Richtig!':'Leider falsch.','de',.9,250],[null,w.de,'de',.7,0]]);$('qNext').classList.remove('hide');$('qNext').focus()});
+ $('qNext').onclick=()=>{R.k++;step()}}
+function match(ws){const pics=shuf(ws);let sel=null,left=ws.length,pts=ws.length,wrong=new Set();
+ $('review').innerHTML=`<div class="q">${head(3,'Match each word to its picture')}<p style="margin:0;color:var(--soft)">Tap a German word, then tap its picture.</p>
+ <div class="match"><div class="col">${ws.map(w=>`<button class="mw" data-i="${w.i}"><span class="${w.art?'a-'+w.art:''}">${w.de}</span></button>`).join('')}</div>
+ <div class="col">${pics.map(w=>`<button class="mp" data-i="${w.i}" aria-label="picture"><img src="${img(w)}" alt=""></button>`).join('')}</div></div>
+ <div class="fb" id="fb"></div><div style="text-align:right"><button class="btn next hide" id="qNext">Next</button></div></div>`;
+ const q=$('review');
+ q.querySelectorAll('.mw').forEach(b=>b.onclick=()=>{q.querySelectorAll('.mw').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sel=b;seq([[null,W[+b.dataset.i].de,'de',.7,0]])});
+ q.querySelectorAll('.mp').forEach(p=>p.onclick=()=>{if(!sel){$('fb').className='fb';$('fb').textContent='First tap a German word.';return}
+  const a=+sel.dataset.i,b=+p.dataset.i;
+  if(a===b){sel.classList.remove('sel');sel.classList.add('done');p.classList.add('done');sel=null;left--;$('fb').className='fb ok';$('fb').textContent='Richtig!';
+   if(!left){R.score+=Math.max(0,pts);$('fb').textContent=`Fertig! ${Math.max(0,pts)} of ${ws.length} points.`;$('qNext').classList.remove('hide');$('qNext').focus()}}
+  else{pts--;wrong.add(a);R.miss.add(a);[sel,p].forEach(x=>{x.classList.remove('no');void x.offsetWidth;x.classList.add('no')});$('fb').className='fb no';$('fb').textContent='Nicht ganz — try again.'}});
+ $('qNext').onclick=()=>{R.k++;step()}}
+function finish(){const pc=Math.round(R.score/R.max*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0,miss=[...R.miss].map(i=>W[i]);
+ const msg=pc>=90?'Ausgezeichnet!':pc>=70?'Sehr gut!':pc>=50?'Gut gemacht!':'Weiter üben!';
+ $('review').innerHTML='';
+ overlay(`<div class="logo" style="margin:0 auto 8px;width:80px;height:80px"><img src="logo.png" alt="International Education Egypt"></div>
+ <div class="stars">${[0,1,2].map(i=>STAR.replace('<svg',`<svg style="animation-delay:${.15+i*.15}s;${i<st?'':'fill:#ccc'}"`)).join('')}</div>
+ <h2>${msg}</h2><div class="score">${R.score}/${R.max}</div><p>${pc}% correct in the review game.</p>
+ ${miss.length?`<p style="margin-bottom:8px"><b>Practise these words again:</b></p><div class="miss">${miss.map(w=>`<div><img src="${img(w)}" alt="">${w.de}</div>`).join('')}</div>`:'<p>You got every word right!</p>'}
+ <div class="go" style="justify-content:center"><button class="btn next" id="fAgain">Play the review again</button><button class="btn" id="fLesson">Home page</button></div>`,st?['#ffd23f','#ff7a52','#b6e84a','#7fb0ff']:['#ffd23f']);
+ say(msg,'de',.85);
+ $('fAgain').onclick=()=>{closeOv();startReview()};$('fLesson').onclick=home}
+
+segs('',0);
+}
+</script>
+</body>
+</html>
