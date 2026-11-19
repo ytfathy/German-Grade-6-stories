@@ -1,0 +1,13 @@
+{
+  "name": "german-g6-story",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.1",
+    "@vercel/functions": "^3.11.3"
+  },
+  "scripts": {
+    "test": "node --test test/"
+  }
+}
