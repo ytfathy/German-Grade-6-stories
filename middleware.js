@@ -11,8 +11,9 @@ const norm = (s) => String(s ?? '').trim().toLowerCase();
 export default async function middleware(request) {
   const url = new URL(request.url);
   const { SUPABASE_URL, SUPABASE_ANON_KEY, PROGRAM_CODE } = process.env;
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !PROGRAM_CODE) {
-    return new Response(messagePage('الموقع غير مُعدّ بعد', 'Site not configured: missing environment variables.'), {
+  const missing = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'PROGRAM_CODE'].filter((k) => !process.env[k]);
+  if (missing.length) {
+    return new Response(messagePage('الموقع غير مُعدّ بعد', `Site not configured: missing ${missing.join(', ')}`), {
       status: 500, headers: { 'Content-Type': 'text/html; charset=utf-8' },
     });
   }
