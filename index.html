@@ -158,6 +158,25 @@ body[data-cat=colors] .btn.next{color:#fff}
 .miss{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 18px}
 .miss div{display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--field) 10%,var(--paper));border-radius:12px;padding:4px 10px 4px 4px;font-size:14px;font-weight:600}
 .miss img{width:34px;height:34px;object-fit:cover;border-radius:8px;background:#fff}
+/* grammar practice */
+.hero h2{margin:0;font-size:clamp(24px,3.4vw,32px);line-height:1.1}
+.route.g3{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.stop span.gl{font-size:13px;opacity:.9}
+.qhint{color:var(--soft);font-weight:600;font-size:15px}
+.qtext{font-size:clamp(22px,3vw,30px);font-weight:600;line-height:1.45;margin:0}
+.gap{display:inline-block;min-width:3.2em;border-bottom:3px solid var(--field);text-align:center;color:var(--field)}
+.qtext mark{background:color-mix(in srgb,var(--ok) 22%,transparent);color:inherit;border-radius:6px;padding:0 4px}
+.opts.one{grid-template-columns:minmax(0,1fr)}
+.ordans{min-height:76px;border:2px dashed var(--line);border-radius:16px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ordans.ok{border-style:solid;border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--paper))}
+.ordans.no{border-style:solid;border-color:var(--bad);animation:shake .3s}
+.ordbank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:56px}
+.chip{min-height:52px;border-radius:14px;padding:6px 16px;font-size:20px;font-weight:600;background:color-mix(in srgb,var(--field) 9%,var(--paper));border:2px solid var(--line)}
+.chip:hover{border-color:var(--field)}
+.btn:disabled{opacity:.45;cursor:default}
+.gmiss{display:grid;gap:6px;margin:0 0 18px;text-align:left;font-size:15px;font-weight:600}
+.gmiss div{background:color-mix(in srgb,var(--field) 10%,var(--paper));border-radius:12px;padding:6px 12px}
+@media(max-width:700px){.route.g3{grid-template-columns:minmax(0,1fr)}}
 .voice{background:#fff3cd;color:#5a4300;border-radius:14px;padding:10px 14px;font-size:14px;margin-bottom:14px}
 @media(max-width:1000px){.route{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:560px){.route{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){
@@ -195,6 +214,11 @@ body[data-cat=colors] .btn.next{color:#fff}
         <span class="sthumb"><img src="grammar-poster.jpg" alt=""><span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
         <span class="stxt"><small>Grammatik · Grammar study · 4:26</small><b>Grammar study</b><span>Modal verbs können, müssen, wollen, the sentence bracket, and mein/dein in Nominativ and Akkusativ.</span><span class="sgo">Grammatik lernen <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
       </button>
+    </div>
+    <div>
+      <h2>Grammatik üben · Grammar practice</h2>
+      <p>Watch the grammar video, then practise the modal verbs in 3 short lessons.</p>
+      <div class="route g3" id="gRoute"></div>
     </div>
     <div>
       <h1>Wortschatz lernen · Learn the words</h1>
@@ -462,6 +486,92 @@ function finish(){const pc=Math.round(R.score/R.max*100),st=pc>=90?3:pc>=70?2:pc
  <div class="go" style="justify-content:center"><button class="btn next" id="fAgain">Play the review again</button><button class="btn" id="fLesson">Home page</button></div>`,st?['#ffd23f','#ff7a52','#b6e84a','#7fb0ff']:['#ffd23f']);
  say(msg,'de',.85);
  $('fAgain').onclick=()=>{closeOv();startReview()};$('fLesson').onclick=home}
+
+/* ---------- grammar practice ---------- */
+const GL=[
+ {id:'konj',c:'#b02f67',de:'Modalverben konjugieren',en:'Verb forms: können, müssen, wollen',hint:'Wähle die richtige Form · Choose the correct form of the verb.'},
+ {id:'wahl',c:'#2b7f9e',de:'können, wollen oder müssen?',en:'Choose the modal verb that fits',hint:'Wähle aus! · Choose the verb that fits the sentence.'},
+ {id:'satz',c:'#2f6e3b',de:'Satzklammer · Satzbau',en:'Word order: verb in position 2, infinitive at the end',hint:'Wähle aus! · The infinitive goes to the end.'}];
+// lesson|type|prompt|correct|wrong|wrong — M: ___ is a gap (" … " fills two gaps), B: build the sentence, O: put the words in order
+const GRAW=`konj|M|ich ___ (können)|kann|kannst|können
+konj|M|ich ___ (müssen)|muss|musst|müssen
+konj|M|du ___ (müssen)|musst|muss|müsst
+konj|M|du ___ (wollen)|willst|will|wollt
+konj|M|er, sie, es ___ (können)|kann|kannst|könnt
+konj|M|er, sie, es ___ (müssen)|muss|musst|müssen
+konj|M|er, sie, es ___ (wollen)|will|willst|wollen
+konj|M|wir ___ (können)|können|könnt|kann
+konj|M|wir ___ (müssen)|müssen|müsst|muss
+konj|M|ihr ___ (wollen)|wollt|wollen|willst
+konj|M|sie ___ (können)|können|könnt|kann
+konj|M|sie ___ (wollen)|wollen|wollt|will
+konj|M|Sie ___ (können)|können|kannst|könnt
+konj|M|Sie ___ (müssen)|müssen|musst|müsst
+konj|M|Sie ___ (wollen)|wollen|willst|wollt
+konj|M|Du ___ Deutsch lernen.|willst|will|wollen
+konj|M|Ich und Yahia ___ die Hausaufgaben machen.|müssen|müsst|muss
+konj|M|Younis und Hamza ___ sehr gut Fußball spielen.|können|könnt|kann
+konj|M|Talya ___ Pizza essen.|will|willst|wollen
+wahl|M|Mein Bruder ___ gut Ski fahren.|kann|muss|will
+wahl|M|Ich ___ nicht Ski fahren, aber ich ___ es lernen.|kann … will|will … kann|muss … kann
+wahl|M|Max ___ heute nicht kommen. Er ___ noch lernen.|kann … muss|muss … kann|will … kann
+wahl|M|Wir ___ im Sommer nach Spanien fahren.|wollen|müssen|will
+wahl|M|___ ich bitte dein Handy nehmen?|Kann|Muss|Will
+wahl|M|Sara ___ Deutsch lernen. Sie ___ also einen Deutschkurs besuchen.|will … muss|muss … will|kann … will
+wahl|M|___ wir heute Abend ins Kino gehen?|Wollen|Müssen|Willst
+wahl|M|Es ist schon spät. Ich ___ jetzt nach Hause gehen.|muss|kann|will
+wahl|M|Jury ___ sehr gut Deutsch sprechen.|kann|muss|will
+satz|M|Lang will nach China ___.|fahren|fahre|Fahrt
+satz|M|Ali muss die Hausaufgaben ___.|machen|macht|mache
+satz|B|ich · heute Abend · wollen · gehen · ins Kino|Ich will heute Abend ins Kino gehen.|Ich will heute Abend gehen ins Kino.|Ich heute Abend will ins Kino gehen.
+satz|B|Tina · zu Hause · heute · müssen · bleiben|Tina muss heute zu Hause bleiben.|Tina muss bleiben heute zu Hause.|Tina heute muss zu Hause bleiben.
+satz|B|Herr Meier · Englisch sprechen · können · nicht|Herr Meier kann nicht Englisch sprechen.|Herr Meier kann nicht sprechen Englisch.|Herr Meier nicht kann Englisch sprechen.
+satz|B|wir · besuchen · wollen · einen Skikurs|Wir wollen einen Skikurs besuchen.|Wir wollen besuchen einen Skikurs.|Wir besuchen wollen einen Skikurs.
+satz|B|Tina · Tennis spielen · wollen · und · in den Tennisclub gehen|Tina will Tennis spielen und in den Tennisclub gehen.|Tina will spielen Tennis und in den Tennisclub gehen.|Tina Tennis spielen will und in den Tennisclub gehen.
+satz|O|Yossef kann sehr gut schwimmen.
+satz|O|Was kannst du machen?`;
+const GQ=GRAW.split('\n').map(l=>{const[l2,t,p,...opts]=l.split('|');return{l:l2,t,p,opts}});
+let G=null;
+$('gRoute').innerHTML=GL.map((l,k)=>`<button class="stop" style="--c:${l.c}" data-g="${l.id}"><small>Lektion ${k+1} · ${GQ.filter(q=>q.l===l.id).length} questions</small><b>${l.de}</b><span class="gl">${l.en}</span></button>`).join('');
+$('gRoute').onclick=e=>{const b=e.target.closest('[data-g]');if(b)startGram(b.dataset.g)};
+function startGram(id){stop();closeOv();const L=GL.find(l=>l.id===id);document.body.dataset.cat='review';segs('',0);$('count').textContent='Grammatik · Grammar';
+ G={L,qs:GQ.filter(q=>q.l===id),k:0,score:0,miss:[]};show('review');gStep()}
+function gHead(){const T=G.qs.length;return`<div class="qh"><h2>${G.L.de}</h2><span>Question ${G.k+1} of ${T} · Score ${G.score}/${T}</span></div><div class="qbar"><i style="width:${G.k/T*100}%"></i></div>`}
+function gDone(ok,full,shown){if(ok)G.score++;else G.miss.push(full);
+ $('fb').className='fb '+(ok?'ok':'no');$('fb').textContent=ok?'Richtig! Correct!':`Leider falsch. Richtig ist: ${shown}`;
+ seq([[null,ok?'Richtig!':'Leider falsch.','de',.9,250],[null,full,'de',.75,0]]);
+ $('qNext').classList.remove('hide');$('qNext').focus();$('qNext').onclick=()=>{G.k++;gStep()}}
+function gStep(){if(G.k>=G.qs.length)return gFinish();const q=G.qs[G.k];if(q.t==='O')return gOrder(q);
+ const right=q.opts[0],opts=shuf(q.opts),parts=right.split(' … ');
+ const filled=()=>{let i=0;return q.p.replace(/___/g,()=>`<mark>${parts[i++]}</mark>`)};
+ const full=q.t==='B'?right:filled().replace(/<\/?mark>/g,'').replace(/\s*\(.*?\)/g,'');
+ $('review').innerHTML=`<div class="q">${gHead()}<div class="qhint">${q.t==='B'?'Bilde Sätze! · Choose the correct sentence.':G.L.hint}</div>
+ <div class="qtext" id="gq">${q.t==='B'?q.p:q.p.replace(/___/g,'<span class="gap">…</span>')}</div>
+ <div class="opts ${opts.some(o=>o.length>18)?'one':''}">${opts.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join('')}</div><div class="fb" id="fb"></div>
+ <div style="text-align:right"><button class="btn next hide" id="qNext">Next</button></div></div>`;
+ let done=false;$('review').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(done)return;done=true;const ok=opts[+b.dataset.k]===right;
+  b.classList.add(ok?'ok':'no');if(!ok)$('review').querySelector(`.opt[data-k="${opts.indexOf(right)}"]`).classList.add('ok');
+  if(q.t==='M')$('gq').innerHTML=filled();gDone(ok,full,right)})}
+function gOrder(q){const words=q.p.split(' ');let bank=words.slice(),ans=[],done=false;
+ for(let t=0;t<20&&bank.join(' ')===q.p;t++)bank=shuf(words);
+ $('review').innerHTML=`<div class="q">${gHead()}<div class="qhint">Ordne! · Tap the words in the right order. Tap a word again to take it back.</div>
+ <div class="ordans" id="oAns"></div><div class="ordbank" id="oBank"></div><div class="fb" id="fb"></div>
+ <div class="go" style="justify-content:flex-end"><button class="btn" id="oCheck">Prüfen · Check</button><button class="btn next hide" id="qNext">Next</button></div></div>`;
+ const draw=()=>{$('oAns').innerHTML=ans.map((w,j)=>`<button class="chip" data-a="${j}">${w}</button>`).join('')||'<span class="qhint">Your sentence…</span>';
+  $('oBank').innerHTML=bank.map((w,j)=>`<button class="chip" data-b="${j}">${w}</button>`).join('');$('oCheck').disabled=bank.length>0};
+ draw();
+ $('review').querySelector('.q').onclick=e=>{const c=e.target.closest('.chip');if(!c||done)return;
+  if(c.dataset.b!==undefined)ans.push(bank.splice(+c.dataset.b,1)[0]);else bank.push(ans.splice(+c.dataset.a,1)[0]);draw()};
+ $('oCheck').onclick=()=>{if(done||bank.length)return;done=true;const ok=ans.join(' ')===q.p;$('oAns').classList.add(ok?'ok':'no');$('oCheck').classList.add('hide');gDone(ok,q.p,q.p)}}
+function gFinish(){const T=G.qs.length,pc=Math.round(G.score/T*100),st=pc>=90?3:pc>=70?2:pc>=50?1:0,k=GL.indexOf(G.L),nx=GL[k+1];
+ const msg=pc>=90?'Ausgezeichnet!':pc>=70?'Sehr gut!':pc>=50?'Gut gemacht!':'Weiter üben!';
+ $('review').innerHTML='';
+ overlay(`<div class="stars">${[0,1,2].map(i=>STAR.replace('<svg',`<svg style="animation-delay:${.15+i*.15}s;${i<st?'':'fill:#ccc'}"`)).join('')}</div>
+ <h2>${msg}</h2><div class="score">${G.score}/${T}</div><p>${pc}% correct in <b>${G.L.de}</b>.</p>
+ ${G.miss.length?`<p style="margin-bottom:8px"><b>Practise these sentences again:</b></p><div class="gmiss">${G.miss.map(s=>`<div>${s}</div>`).join('')}</div>`:'<p>You got every question right!</p>'}
+ <div class="go" style="justify-content:center">${nx?`<button class="btn next" id="gNx">Weiter: ${nx.de}</button>`:''}<button class="btn" id="gAgain">Practise again</button><button class="btn" id="gHome">Home page</button></div>`,st?['#ffd23f','#ff7a52','#b6e84a','#7fb0ff']:['#ffd23f']);
+ say(msg,'de',.85);
+ if(nx)$('gNx').onclick=()=>startGram(nx.id);$('gAgain').onclick=()=>startGram(G.L.id);$('gHome').onclick=home}
 
 segs('',0);
 }

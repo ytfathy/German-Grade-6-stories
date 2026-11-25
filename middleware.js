@@ -19,7 +19,8 @@ export default async function middleware(request) {
   }
 
   const cookiesToSet = [];
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  // .origin drops a pasted path like "/rest/v1/" that would break the Google redirect.
+  const supabase = createServerClient(new URL(SUPABASE_URL.trim()).origin, SUPABASE_ANON_KEY.trim(), {
     cookies: {
       getAll: () => parseCookieHeader(request.headers.get('cookie') ?? ''),
       setAll: (list) => cookiesToSet.push(...list),
